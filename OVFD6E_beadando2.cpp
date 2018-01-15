@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <conio.h>
+
 #define SIZE 50
 #define MAXL 30
 struct Data {
@@ -105,9 +105,9 @@ void newRec(Data db[]) {
     system("cls");
     newRec(db);
   }
-  fflush(stdin);
   printf("Nev: ");
-  scanf("%[^\n]s", &db[poz].name);
+  fflush(stdin);
+  scanf("%[^\n]", &db[poz].name);
   fflush(stdin);
   printf("Mezszam: ");
   scanf("%d", &db[poz].number);
@@ -164,9 +164,40 @@ void edit(Data db[], int poz) {
   }
 }
 void showAll(Data db[]) {
+
+  int i = 0;
+  while (db[i].id != 0) {
+    i++;
+  }
+  printf("Az adatbázis hossza: %d\n", i);
   printf("ID. \t Felhasznalo \t Mezszam\n\n");
-  for (int i = 0; i < SIZE; i++) {
-    if (db[i].id != 0) printf("%d \t %s\t\t %d \t\n", db[i].id,db[i].name, db[i].number);
+
+  int temp_array[i];
+
+    for (int w = 0; w < i; w++) {
+      temp_array[w] = db[w].id;
+    }
+
+  int index_list[i];
+  for (int q = 0; q < i; q++) {
+    int low_num = 100000;
+    int delete_temp_index;
+    for (int m = 0; m < i; m++) {
+      if (temp_array[m] != 0) {
+        if (low_num > temp_array[m]) {
+          low_num = temp_array[m];
+          delete_temp_index = m;
+        }
+      }
+    }
+    int eh;
+    // scanf("%d", &eh);
+    index_list[q] = delete_temp_index;
+    temp_array[delete_temp_index] = 0;
+  }
+
+  for (int z = 0; z < i; z++) {
+    if (db[index_list[z]].id != 0) printf("%d \t %s\t\t %d \t\n", db[index_list[z]].id,db[index_list[z]].name, db[index_list[z]].number);
   }
 }
 int keresesFelulet(Data db[]){
@@ -179,7 +210,7 @@ int keresesFelulet(Data db[]){
       // átadjuk a search függvénynek a keresett id-t és a db-t (ahol keressük)
       found = search(db,searchid); // ez visszaad egy számot, ami az keresett emberke indexe a db-ben
       if (db[found].number != SIZE + 1) {
-        printf("Nev: %s, iranyitoszam: %d\n", db[found].name, db[found].number); // megmutatjuk a usernek az index nevét
+        printf("Nev: %s, Mezszam: %d\n", db[found].name, db[found].number); // megmutatjuk a usernek az index nevét
       } else {
         printf("Nincs %d id-val rendelkezo rekord adj meg egy masikat\n", searchid);
         found = SIZE + 1;
