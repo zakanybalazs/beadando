@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+
 #define SIZE 50
 #define MAXL 30
 struct Data {
@@ -71,12 +73,15 @@ int getLastPoz(Data db[]) {
   return p;
 }
 int exists(Data db[], int id) {
+  if (id <= 0) {
+    return false;
+  }
   for (int i = 0; i < SIZE; i++) {
     if (db[i].id == id) {
       return true;
     }
-    return false;
   }
+  return false;
 }
 int search(Data db[], int id) {
   int i = 0;
@@ -94,17 +99,18 @@ void newRec(Data db[]) {
   int poz, ai;
   fflush(stdin);
   poz = getLastPoz(db);
+
   // ai = autoIncrement(db);
   printf("ID: ");
   scanf("%d", &ai);
   if (!exists(db,ai)) {
+    if (ai <= 0) {
+      printf("nem megfelelo azonosito, adjon meg masikat!\n");
+      system("pause");
+      system("cls");
+      newRec(db);
+    } else {
     db[poz].id = ai;
-  } else {
-    printf("A megadott azonosito letezik a rendszerben, adjon meg mesikat!\n");
-    system("pause");
-    system("cls");
-    newRec(db);
-  }
   printf("Nev: ");
   fflush(stdin);
   scanf("%[^\n]", &db[poz].name);
@@ -113,12 +119,24 @@ void newRec(Data db[]) {
   scanf("%d", &db[poz].number);
   fflush(stdin);
   printf("\n\t Sikeresen rogzitve \n\n");
+  }
+  } else {
+  printf("A megadott azonosito letezik a rendszerben, adjon meg masikat!\n");
+  system("pause");
+  system("cls");
+  newRec(db);
+  }
 }
 void del(Data db[]){
   int id, poz, ai;
   char valasz;
   printf("\n\tMelyik rekordot szeretned torolni?\n");
   scanf("%d",&id);
+  if (!exists(db, id)) {
+    printf("%d azonositoval nem rendelkezik jatekos a rendszerben\n",id);
+    del(db);
+
+  } else {
   ai = autoIncrement(db);
   poz = search(db, id);
   fflush(stdin);
@@ -139,23 +157,22 @@ void del(Data db[]){
    } else {
      printf("Nincs ilyen ID.vel rendelkezo rekord\n");
     }
+  }
 }
-void edit(Data db[], int poz) {
-  int id;
-  if (poz != 0) {
-    printf("ID: %d\t Nev: %s \t Mezszam: %d\n\n", db[poz].id, db[poz].name, db[poz].number);
-    fflush(stdin);
-    printf("Uj nev:\n");
-    scanf("%[^\n]s", db[poz].name);
-    fflush(stdin);
-    printf("Uj Mezszam:\n");
-    scanf("%d", &db[poz].number);
-  } else {
+void edit(Data db[]) {
+  int id, poz;
     printf("Melyik rekordot modositjuk?\n");
     scanf("%d", &id);
     fflush(stdin);
+    if (!exists(db, id)) {
+      printf("%d azonositoval nem rendelkezik jatekos a rendszerben\n",id);
+      edit(db);
+
+    } else {
     poz = search(db, id);
     printf("ID: %d\t Nev: %s \t Mezszam: %d\n\n", db[poz].id, db[poz].name, db[poz].number);
+    fflush(stdin);
+
     printf("Uj nev:\n");
     scanf("%[^\n]s", db[poz].name);
     fflush(stdin);
@@ -200,7 +217,7 @@ void showAll(Data db[]) {
     if (db[index_list[z]].id != 0) printf("%d \t %s\t\t %d \t\n", db[index_list[z]].id,db[index_list[z]].name, db[index_list[z]].number);
   }
 }
-int keresesFelulet(Data db[]){
+void keresesFelulet(Data db[]){
   /* ----- Keresési felület. ----- */
       printf("Kereses id alapjan:\n");
       int searchid;
@@ -208,6 +225,12 @@ int keresesFelulet(Data db[]){
     do {
       scanf("%d", &searchid); // bekérjük a keresett id-t
       // átadjuk a search függvénynek a keresett id-t és a db-t (ahol keressük)
+      if (!exists(db, searchid)) {
+        printf("%d azonositoval nem rendelkezik jatekos a rendszerben\n",searchid);
+        keresesFelulet(db);
+        break;
+      }
+
       found = search(db,searchid); // ez visszaad egy számot, ami az keresett emberke indexe a db-ben
       if (db[found].number != SIZE + 1) {
         printf("Nev: %s, Mezszam: %d\n", db[found].name, db[found].number); // megmutatjuk a usernek az index nevét
@@ -216,7 +239,6 @@ int keresesFelulet(Data db[]){
         found = SIZE + 1;
       }
     } while(found == SIZE + 1);
-    return found;
 }
 
 
@@ -254,12 +276,10 @@ do {
         showAll(db);
         break;
       case 2:
-        keresID = 0;
-        keresID = keresesFelulet(db);
-        printf("\n ----- %s modositasa az adatbazisban: 3 ----\n", db[keresID].name);
+        keresesFelulet(db);
         break;
       case 3:
-        edit(db,keresID);
+        edit(db);
         break;
       case 4:
         keresID = 0;
